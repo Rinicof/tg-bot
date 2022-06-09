@@ -38,24 +38,22 @@ def commands(call):
         bot.send_message(call.message.chat.id, 'Напиши что-то')
         data[call.message.chat.id]['state'] = 'echo'
     elif call.data == 'calc':
-        bot.send_message(call.message.chat.id, 'Напиши математику')
+        bot.send_message(call.message.chat.id, 'Напиши математический пример')
         data[call.message.chat.id]['state'] = 'calc'
-        
+
 @bot.message_handler(func=filter_calc)
 def calculator(message):
     try:
         result = eval(message.text.replace('^', '**'))
-        bot.send_message(message.chat.id, 'Ответ:' + str(result), reply_markup=cancel_markup)
+        bot.send_message(message.chat.id, 'Ответ: ' + str(result), reply_markup=cancel_markup)
     except ZeroDivisionError:
-        bot.send_message(message.chat.id, 'Ошибка. Нельзя делить на ноль!', reply_markup=cancel_markup)
+        bot.send_message(message.chat.id, 'Нельзя делить на ноль!', reply_markup=cancel_markup)
     except:
-        bot.send_message(message.chat.id, ' Что-то пошло не так!', reply_markup=cancel_markup)
+        bot.send_message(message.chat.id, 'Что-то пошло не так!', reply_markup=cancel_markup)
 
 @bot.message_handler(func=filter_echo)
 def echo_message(message):
     answer = message.text
     bot.reply_to(message, answer, reply_markup=cancel_markup)
-
-
 
 bot.polling(non_stop=True) # Рабочий цикл бота
