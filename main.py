@@ -21,10 +21,8 @@ def start_message(message):
     markup = tb.types.InlineKeyboardMarkup()
     button_echo = tb.types.InlineKeyboardButton('Эхо-бот', callback_data='echo')
     button_calc = tb.types.InlineKeyboardButton('Калькулятор', callback_data='calc')
-    
     markup.add(button_echo)
     markup.add(button_calc)
-    
     bot.send_message(
         message.chat.id, 
         message.from_user.first_name + ', нажми на кнопку, получишь результат', 
