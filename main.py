@@ -81,4 +81,5 @@ def echo_message(message):
 def send_rand_photo(message):
     bot.send_photo(message.chat.id, photo='https://picsum.photos/150', caption='ваопалпрраолоывалоруцагрвыоавыиаррвыапуа')
 
+
 bot.polling(non_stop=True) # Рабочий цикл бота
