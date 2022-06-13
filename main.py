@@ -88,18 +88,19 @@ def calculator(message):
         result = eval(message.text.replace('^', '**'))
         bot.send_message(message.chat.id, 'Ответ: ' + str(result), reply_markup=cancel_markup)
     except ZeroDivisionError:
-        bot.send_message(message.chat.id, 'Нельзя делить на ноль!', reply_markup=cancel_markup)
+        bot.send_message(message.chat.id, '⛔ Нельзя делить на ноль!', reply_markup=cancel_markup)
     except:
-        bot.send_message(message.chat.id, 'Что-то пошло не так!', reply_markup=cancel_markup)
+        bot.send_message(message.chat.id, '⁉️ Что-то пошло не так!', reply_markup=cancel_markup)
 
 @bot.message_handler(func=filter_echo)
 def echo_message(message):
     answer = message.text
     bot.reply_to(message, answer, reply_markup=cancel_markup)
 
+"""
 @bot.message_handler(func=filter_photo)
 def send_rand_photo(message):
     bot.send_photo(message.chat.id, photo='https://picsum.photos/150', caption='ваопалпрраолоывалоруцагрвыоавыиаррвыапуа')
-
+"""
 
 bot.polling(non_stop=True) # Рабочий цикл бота
