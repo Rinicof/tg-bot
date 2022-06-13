@@ -1,39 +1,24 @@
 # https://github.com/Rinicof/tg-bot
 import telebot as tb
 from random import randint
+from config import *
 
-data = {}
-photos = [
-    'https://media.realitatea.net/multimedia/image/202108/w1920/urs-ursulet-pui-de-urs-salvat-1_8b225a3799.jpg', # Медведь
-    'https://avatars.mds.yandex.net/get-zen_doc/3957666/pub_5fb385ea268198734de4bb7a_5fb38690268198734de5ece0/scale_1200', # Морская свинка
-    'https://4lapki.com/wp-content/uploads/2020/10/Screenshot_7-1.jpg', # Корги
-    'https://mirpozitiva.ru/wp-content/uploads/2019/11/1502876242_beautiful-horse_1.jpg', # Конь
-    'https://avatars.mds.yandex.net/get-zen_doc/230865/pub_5c3ca3ef6d724700ab2e1720_5c3ca49832639b00ad039247/scale_1200', # Торнадо
-    'https://oir.mobi/uploads/posts/2021-04/1619642229_60-oir_mobi-p-severnii-morskoi-kotik-zhivotnie-krasivo-f-65.jpg', # Морской китик
-    'https://i12.fotocdn.net/s105/4391b87f2a98ab88/public_pin_l/2240125757.jpg', # Слонёнок
-    'https://i.pinimg.com/originals/4f/59/4a/4f594a26e903d996723dc75886e27019.jpg', # Ёжик
-    'https://i.pinimg.com/originals/df/31/c9/df31c9819dc91f757cf348669be6f56a.jpg', # Олень
-    'https://animalinfo.ru/wp-content/uploads/2021/11/s1200.jpg', # Куница
-    'https://fotovmire.ru/wp-content/uploads/2019/03/10152/morda-cherepahi-krupnym-planom-na-fone-korralovyh-rifov.jpg', # Черепаха
-    'https://imperia-jilstroy.ru/wp-content/uploads/2019/03/neshvill-_1_.jpg' # Дом
-]
-TOKEN = '5419028605:AAGqsiNXXiipMlszQs97Sv-tTkf4EDxBi0E'
-bot = tb.TeleBot(TOKEN)
+bot = tb.TeleBot(BOT_TOKEN)
 
 cancel_markup = tb.types.InlineKeyboardMarkup()
-cancel_btn = tb.types.InlineKeyboardButton('◀️ Назад', callback_data='cancel')
+cancel_btn = tb.types.InlineKeyboardButton(cancel_btn_txt, callback_data='cancel')
 cancel_markup.add(cancel_btn)
 
 markup = tb.types.InlineKeyboardMarkup()
-btn_echo = tb.types.InlineKeyboardButton('💭 Эхо-бот', callback_data='echo')
-btn_calc = tb.types.InlineKeyboardButton('🔢 Калькулятор', callback_data='calc')
-btn_photo = tb.types.InlineKeyboardButton('📸 Фото', callback_data='photo')
-markup.add(btn_echo)
-markup.add(btn_calc)
-markup.add(btn_photo)
+echo_btn = tb.types.InlineKeyboardButton(echo_btn_txt, callback_data='echo')
+calc_btn = tb.types.InlineKeyboardButton(calc_btn_txt, callback_data='calc')
+photo_btn = tb.types.InlineKeyboardButton(photo_btn_txt, callback_data='photo')
+markup.add(echo_btn)
+markup.add(calc_btn)
+markup.add(photo_btn)
 
 more_photo_markup = tb.types.InlineKeyboardMarkup()
-more_photo_btn = tb.types.InlineKeyboardButton('🔁 Ещё', callback_data='photo')
+more_photo_btn = tb.types.InlineKeyboardButton(more_btn_txt, callback_data='photo')
 more_photo_markup.add(more_photo_btn)
 more_photo_markup.add(cancel_btn)
 
@@ -58,7 +43,7 @@ def start_message(message):
     data[message.chat.id] = {'state':'start'}
     bot.send_message(
         message.chat.id, 
-        message.from_user.first_name + ', нажми на кнопку, получишь результат', 
+        message.from_user.first_name + first_appeal, 
         reply_markup=markup
     )
 
