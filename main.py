@@ -1,5 +1,5 @@
 # https://github.com/Rinicof/tg-bot
-import telebot as tb
+import telebot
 from telebot import types
 from random import randint
 
@@ -8,22 +8,22 @@ from telebot.types import InlineKeyboardMarkup
 from config import *
 from messages import *
 
-bot = tb.TeleBot(BOT_TOKEN)
+bot = telebot.TeleBot(BOT_TOKEN)
 
-cancel_markup = tb.types.InlineKeyboardMarkup()
-cancel_btn = tb.types.InlineKeyboardButton(cancel_btn_txt, callback_data='cancel')
+cancel_markup = telebot.types.InlineKeyboardMarkup()
+cancel_btn = telebot.types.InlineKeyboardButton(cancel_btn_txt, callback_data='cancel')
 cancel_markup.add(cancel_btn)
 
-markup: InlineKeyboardMarkup = tb.types.InlineKeyboardMarkup()
-echo_btn = tb.types.InlineKeyboardButton(echo_btn_txt, callback_data='echo')
-calc_btn = tb.types.InlineKeyboardButton(calc_btn_txt, callback_data='calc')
-photo_btn = tb.types.InlineKeyboardButton(photo_btn_txt, callback_data='photo')
+markup: InlineKeyboardMarkup = telebot.types.InlineKeyboardMarkup()
+echo_btn = telebot.types.InlineKeyboardButton(echo_btn_txt, callback_data='echo')
+calc_btn = telebot.types.InlineKeyboardButton(calc_btn_txt, callback_data='calc')
+photo_btn = telebot.types.InlineKeyboardButton(photo_btn_txt, callback_data='photo')
 markup.add(echo_btn)
 markup.add(calc_btn)
 markup.add(photo_btn)
 
-more_photo_markup = tb.types.InlineKeyboardMarkup()
-more_photo_btn = tb.types.InlineKeyboardButton(more_btn_txt, callback_data='photo')
+more_photo_markup = telebot.types.InlineKeyboardMarkup()
+more_photo_btn = telebot.types.InlineKeyboardButton(more_btn_txt, callback_data='photo')
 more_photo_markup.add(more_photo_btn)
 more_photo_markup.add(cancel_btn)
 
@@ -74,7 +74,7 @@ def commands(call):
             data[call.message.chat.id]['state'] = 'menu'
         if call.data == 'photo':
             bot.send_photo(call.message.chat.id, photo=photos[randint(0, len(photos) - 1)],
-                           reply_markup=more_photo_markup)
+                            reply_markup=more_photo_markup)
             data[call.message.chat.id]['state'] = 'photo'
 
 
