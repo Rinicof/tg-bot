@@ -1,5 +1,3 @@
-data = {} # Словарь для хранения состояний бота
-
 photos = [
     'https://media.realitatea.net/multimedia/image/202108/w1920/urs-ursulet-pui-de-urs-salvat-1_8b225a3799.jpg', # Медведь
     'https://avatars.mds.yandex.net/get-zen_doc/3957666/pub_5fb385ea268198734de4bb7a_5fb38690268198734de5ece0/scale_1200', # Морская свинка
@@ -14,5 +12,7 @@ photos = [
     'https://fotovmire.ru/wp-content/uploads/2019/03/10152/morda-cherepahi-krupnym-planom-na-fone-korralovyh-rifov.jpg', # Черепаха
     'https://imperia-jilstroy.ru/wp-content/uploads/2019/03/neshvill-_1_.jpg' # Дом
 ] # Список с картинками
+
+data = {} # Словарь для хранения состояний бота
 
 BOT_TOKEN = '5419028605:AAGqsiNXXiipMlszQs97Sv-tTkf4EDxBi0E' # Токен бота
