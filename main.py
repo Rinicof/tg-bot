@@ -1,6 +1,10 @@
 # https://github.com/Rinicof/tg-bot
 import telebot as tb
+from telebot import types
 from random import randint
+
+from telebot.types import InlineKeyboardMarkup
+
 from config import *
 from messages import *
 
@@ -10,7 +14,7 @@ cancel_markup = tb.types.InlineKeyboardMarkup()
 cancel_btn = tb.types.InlineKeyboardButton(cancel_btn_txt, callback_data='cancel')
 cancel_markup.add(cancel_btn)
 
-markup = tb.types.InlineKeyboardMarkup()
+markup: InlineKeyboardMarkup = tb.types.InlineKeyboardMarkup()
 echo_btn = tb.types.InlineKeyboardButton(echo_btn_txt, callback_data='echo')
 calc_btn = tb.types.InlineKeyboardButton(calc_btn_txt, callback_data='calc')
 photo_btn = tb.types.InlineKeyboardButton(photo_btn_txt, callback_data='photo')
