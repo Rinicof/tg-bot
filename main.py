@@ -43,7 +43,7 @@ def start_message(message):
     data[message.chat.id] = {'state':'start'}
     bot.send_message(
         message.chat.id, 
-        message.from_user.first_name + first_appeal, 
+        message.from_user.first_name + first_appeal_txt, 
         reply_markup=markup
     )
 
@@ -54,13 +54,13 @@ def commands(call):
         data[call.message.chat.id] = {'state':'menu'}
     else:
         if call.data == 'echo':
-            bot.send_message(call.message.chat.id, 'Напиши что-то')
+            bot.send_message(call.message.chat.id, echo_message_txt)
             data[call.message.chat.id]['state'] = 'echo'
         if call.data == 'calc':
-            bot.send_message(call.message.chat.id, 'Напиши математический пример')
+            bot.send_message(call.message.chat.id, calc_message_txt)
             data[call.message.chat.id]['state'] = 'calc'
         if call.data == 'cancel':
-            bot.send_message(call.message.chat.id, 'Меню:', reply_markup=markup)
+            bot.send_message(call.message.chat.id, menu_message_txt, reply_markup=markup)
             data[call.message.chat.id]['state'] = 'menu'
         if call.data == 'photo':
             bot.send_photo(call.message.chat.id, photo=photos[randint(0, len(photos) - 1)], reply_markup=more_photo_markup)
@@ -73,9 +73,9 @@ def calculator(message):
         result = eval(message.text.replace('^', '**'))
         bot.send_message(message.chat.id, 'Ответ: ' + str(result), reply_markup=cancel_markup)
     except ZeroDivisionError:
-        bot.send_message(message.chat.id, 'Нельзя делить на ноль!', reply_markup=cancel_markup)
+        bot.send_message(message.chat.id, calc_division_err_txt, reply_markup=cancel_markup)
     except:
-        bot.send_message(message.chat.id, 'Что-то пошло не так!', reply_markup=cancel_markup)
+        bot.send_message(message.chat.id, calc_unknow_err_txt, reply_markup=cancel_markup)
 
 @bot.message_handler(func=filter_echo)
 def echo_message(message):
