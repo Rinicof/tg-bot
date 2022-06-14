@@ -23,17 +23,21 @@ more_photo_btn = tb.types.InlineKeyboardButton(more_btn_txt, callback_data='phot
 more_photo_markup.add(more_photo_btn)
 more_photo_markup.add(cancel_btn)
 
+
 def filter_state(message):
     if message.chat.id in data:
         return True
     else:
-        data[message.chat.id] = {'state':'menu'}
+        data[message.chat.id] = {'state': 'menu'}
+
 
 def filter_echo(message):
     return filter_state(message) and data[message.chat.id]['state'] == 'echo'
 
+
 def filter_calc(message):
     return filter_state(message) and data[message.chat.id]['state'] == 'calc'
+
 
 def filter_photo(message):
     return filter_state(message) and data[message.chat.id]['state'] == 'photo'
@@ -41,18 +45,19 @@ def filter_photo(message):
 
 @bot.message_handler(commands=['start'])
 def start_message(message):
-    data[message.chat.id] = {'state':'start'}
+    data[message.chat.id] = {'state': 'start'}
     bot.send_message(
-        message.chat.id, 
-        message.from_user.first_name + first_appeal_txt, 
+        message.chat.id,
+        message.from_user.first_name + first_appeal_txt,
         reply_markup=markup
     )
+
 
 @bot.callback_query_handler(func=lambda call: True)
 def commands(call):
     bot.answer_callback_query(call.id)
     if not call.message.chat.id in data:
-        data[call.message.chat.id] = {'state':'menu'}
+        data[call.message.chat.id] = {'state': 'menu'}
     else:
         if call.data == 'echo':
             bot.send_message(call.message.chat.id, echo_message_txt)
@@ -64,7 +69,8 @@ def commands(call):
             bot.send_message(call.message.chat.id, menu_message_txt, reply_markup=markup)
             data[call.message.chat.id]['state'] = 'menu'
         if call.data == 'photo':
-            bot.send_photo(call.message.chat.id, photo=photos[randint(0, len(photos) - 1)], reply_markup=more_photo_markup)
+            bot.send_photo(call.message.chat.id, photo=photos[randint(0, len(photos) - 1)],
+                           reply_markup=more_photo_markup)
             data[call.message.chat.id]['state'] = 'photo'
 
 
@@ -78,10 +84,11 @@ def calculator(message):
     except:
         bot.send_message(message.chat.id, calc_unknow_err_txt, reply_markup=cancel_markup)
 
+
 @bot.message_handler(func=filter_echo)
 def echo_message(message):
     answer = message.text
     bot.reply_to(message, answer, reply_markup=cancel_markup)
 
 
-bot.polling(non_stop=True) # Рабочий цикл бота
+bot.polling(non_stop=True)  # Рабочий цикл бота
