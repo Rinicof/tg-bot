@@ -2,6 +2,7 @@
 import telebot as tb
 from random import randint
 from config import *
+from messages import *
 
 bot = tb.TeleBot(BOT_TOKEN)
 
