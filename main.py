@@ -36,6 +36,7 @@ selecter_mode_markup.add(easy_mode_btn)
 selecter_mode_markup.add(medium_mode_btn)
 selecter_mode_markup.add(hard_mode_btn)
 
+
 def filter_state(message):
     if message.chat.id in data:
         return True
@@ -105,10 +106,10 @@ def calculator(message):
     try:
         result = eval(message.text.replace('^', '**'))
         bot.send_message(message.chat.id, 'Ответ: ' + str(result), reply_markup=cancel_markup)
-    except ZeroDivisionError:
-        bot.send_message(message.chat.id, calc_division_err_txt, reply_markup=cancel_markup)
+    except ArithmeticError:
+        bot.send_message(message.chat.id, calc_math_err_txt, reply_markup=cancel_markup)
     except:
-        bot.send_message(message.chat.id, calc_unknow_err_txt, reply_markup=cancel_markup)
+        bot.send_message(message.chat.id, unknow_err_txt, reply_markup=cancel_markup)
 
 
 @bot.message_handler(func=filter_echo)
@@ -123,29 +124,31 @@ def guess_diff(call):
     global random_number
     if call.data == 'light':
         random_number = randint(0, 10)
-        bot.send_message(call.message.chat.id, 'Угадай число от 1 до 10')
+        bot.send_message(call.message.chat.id, easy_mode_select_txt)
     elif call.data == 'medium':
         random_number = randint(0, 50)
-        bot.send_message(call.message.chat.id, 'Угадай число от 1 до 50')
+        bot.send_message(call.message.chat.id, medium_mode_select_txt)
     elif call.data == 'hard':
         random_number = randint(0, 100)
-        bot.send_message(call.message.chat.id, 'Угадай чисо от 1 до 100')
+        bot.send_message(call.message.chat.id, hard_mode_select_txt)
     data[call.message.chat.id]['state'] = 'guess'
-    bot.send_message(call.message.chat.id, text='Если хочешь вернуться в меню, нажми кнопку', reply_markup=cancel_markup)
+    bot.send_message(call.message.chat.id, text=cancel_txt, reply_markup=cancel_markup)
 
 
 @bot.message_handler(func=filter_guess)
 def guess(message):
     try:
         if int(message.text) > random_number:
-            bot.send_message(message.chat.id, 'Загаданное число меньше')
+            bot.send_message(message.chat.id, guess_num_less_txt)
         elif int(message.text) < random_number:
-            bot.send_message(message.chat.id, 'Загаданное число больше')
+            bot.send_message(message.chat.id, guess_num_more_txt)
         else:
-            bot.send_message(message.chat.id, 'Вы угадали')
+            bot.send_message(message.chat.id, guess_num_equally_txt)
+    except ValueError:
+        bot.send_message(message.chat.id, value_err_txt)
     except:
-        bot.send_message(message.chat.id, 'Ошибка. Попробуй ещё раз')
-    bot.send_message(message.chat.id, text='Если хочешь вернуться в меню, нажми кнопку', reply_markup=cancel_markup)
+        bot.send_message(message.chat.id, unknow_err_txt)
+    bot.send_message(message.chat.id, text=cancel_txt, reply_markup=cancel_markup)
 
 
 bot.polling(non_stop=True)  # Рабочий цикл бота
