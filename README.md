@@ -1,2 +1,2 @@
 # tg-bot
-Telegram Bot: @Gffggf_bot
+Bot in Telegram: @Gffggf_bot
