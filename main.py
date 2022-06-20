@@ -171,11 +171,31 @@ def hack(call):
     bot.answer_callback_query(call.id)
     for i in range(0, 100):
         try:
-            bot.edit_message_text(f'Взлом пентагона...{i + randint(0, 2)}%', 
+            bot.edit_message_text(f'Взлом пентагона... {i + randint(0, 1)}%', 
             call.message.chat.id, call.message.message_id)
         except:
             pass
         sleep(0.1)
-    
+    if randint(0, 2) == 0:
+        sleep(1)
+        try:
+            bot.edit_message_text('Упс... Похоже, ваш телефон был взломан.', 
+                call.message.caht.id, call.message.message_id)
+        except:
+            pass
+    else:
+        try:
+            bot.edit_message_text('Пентагон успешно взломан!', 
+                call.message.chat.id, call.message.message_id)
+        except:
+            pass
+        for i in range(0, 100):
+            try:
+                bot.edit_message_text(f'Поиск секретных данных об НЛО... {i + randint(0, 1)}%', 
+                    call.message.chat.id, call.message.message_id)
+            except:
+                pass
+        sleep(0.1)
+
 
 bot.polling(non_stop=True)  # Рабочий цикл бота
