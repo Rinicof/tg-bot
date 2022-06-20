@@ -3,6 +3,7 @@ import telebot
 from telebot import types
 from random import randint
 from telebot.types import InlineKeyboardMarkup
+from time import sleep
 from config import *
 from messages import *
 
@@ -13,15 +14,17 @@ cancel_markup = telebot.types.InlineKeyboardMarkup()
 cancel_btn = telebot.types.InlineKeyboardButton(cancel_btn_txt, callback_data='cancel')
 cancel_markup.add(cancel_btn)
 
-markup: InlineKeyboardMarkup = telebot.types.InlineKeyboardMarkup()
+markup = telebot.types.InlineKeyboardMarkup()
 echo_btn = telebot.types.InlineKeyboardButton(echo_btn_txt, callback_data='echo')
 calc_btn = telebot.types.InlineKeyboardButton(calc_btn_txt, callback_data='calc')
 photo_btn = telebot.types.InlineKeyboardButton(photo_btn_txt, callback_data='photo')
 ygadai_chislo_btn = telebot.types.InlineKeyboardButton(ygadai_chislo_btn_txt, callback_data='guess')
+hack_btn = telebot.types.InlineKeyboardButton('Взломать пентагон', callback_data='hack')
 markup.add(echo_btn)
 markup.add(calc_btn)
 markup.add(photo_btn)
 markup.add(ygadai_chislo_btn)
+markup.add(hack_btn)
 
 more_photo_markup = telebot.types.InlineKeyboardMarkup()
 more_photo_btn = telebot.types.InlineKeyboardButton(more_btn_txt, callback_data='photo')
@@ -36,6 +39,11 @@ selecter_mode_markup.add(easy_mode_btn)
 selecter_mode_markup.add(medium_mode_btn)
 selecter_mode_markup.add(hard_mode_btn)
 
+confirm_markup = telebot.types.InlineKeyboardMarkup()
+confirm_btn = telebot.types.InlineKeyboardButton('Подтвердить', callback_data='confirm_hack')
+confirm_markup.add(confirm_btn)
+confirm_markup.add(cancel_btn)
+
 
 def filter_state(message):
     if message.chat.id in data:
@@ -45,7 +53,7 @@ def filter_state(message):
 
 
 def filter_main(call):
-    return call.data in ['echo', 'calc', 'guess', 'cancel', 'photo', 'menu'] 
+    return call.data in ['echo', 'calc', 'guess', 'cancel', 'photo', 'menu', 'hack'] 
 
 
 def filter_echo(message):
@@ -66,6 +74,10 @@ def filter_diff(call):
 
 def filter_guess(message):
     return filter_state(message) and data[message.chat.id]['state'] == 'guess'
+
+
+def filter_hack(call):
+    return call.data == 'confirm_hack'
 
 
 @bot.message_handler(commands=['start'])
@@ -99,7 +111,10 @@ def commands(call):
             data[call.message.chat.id]['state'] = 'photo'
         if call.data == 'guess':
             bot.send_message(call.message.chat.id, guess_message_txt, reply_markup=selecter_mode_markup)
-
+        if call.data == 'hack':
+            bot.send_message(call.message.chat.id, 'Точно?', reply_markup=confirm_markup)
+            data[call.message.chat.id]['state'] = 'hack'
+        
 
 @bot.message_handler(func=filter_calc)
 def calculator(message):
@@ -151,5 +166,16 @@ def guess(message):
     bot.send_message(message.chat.id, text=cancel_txt, reply_markup=cancel_markup)
 
 
-bot.polling(non_stop=True)  # Рабочий цикл бота
+@bot.callback_query_handler(func=filter_hack)
+def hack(call):
+    bot.answer_callback_query(call.id)
+    for i in range(0, 100):
+        try:
+            bot.edit_message_text(f'Взлом пентагона...{i + randint(0, 2)}%', 
+            call.message.chat.id, call.message.message_id)
+        except:
+            pass
+        sleep(0.1)
+    
 
+bot.polling(non_stop=True)  # Рабочий цикл бота
