@@ -81,8 +81,10 @@ def filter_guess(message):
 def filter_hack(call):
     return call.data == "confirm_hack"
 
+
 def filter_buy(call):
     return call.data == "buy"
+
 
 
 @bot.message_handler(commands=["start"])
