@@ -243,5 +243,5 @@ def process_successful_payment(message):
     
 
 
-
-bot.polling(non_stop=True)  # Рабочий цикл бота
+if __name__ == "__main__":
+    bot.polling(non_stop=True)  # Рабочий цикл бота
