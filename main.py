@@ -129,9 +129,9 @@ def calculator(message):
         result = eval(message.text.replace("^", "**"))
         bot.send_message(message.chat.id, "Ответ: " + str(result), reply_markup=cancel_markup)
     except ArithmeticError:
-        bot.send_message(message.chat.id, calc_math_err_txt, reply_markup=cancel_markup)
+        bot.send_message(message.chat.id, MESSAGES["calc_math_err_txt"], reply_markup=cancel_markup)
     except:
-        bot.send_message(message.chat.id, unknow_err_txt, reply_markup=cancel_markup)
+        bot.send_message(message.chat.id, MESSAGES["unknow_err_txt"], reply_markup=cancel_markup)
 
 
 @bot.message_handler(func=filter_echo)
