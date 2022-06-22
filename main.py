@@ -87,7 +87,7 @@ def filter_buy(call):
 
 
 
-@bot.message_handler(commands=["start"])
+@bot.message_handler(commands=["start", "menu"])
 def start_message(message):
     data[message.chat.id] = {"state": "start"}
     bot.send_message(
@@ -223,7 +223,7 @@ def buy(call):
         prices=price,
         start_parameter='start_parameter',
         invoice_payload='coupon',
-        max_tip_amount=500  * 100,
+        max_tip_amount=500 * 100,
         suggested_tip_amounts=(50 * 100, 150 * 100, 250 * 100, 500 * 100)
     )
 
