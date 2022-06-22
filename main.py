@@ -1,8 +1,8 @@
 # https://github.com/Rinicof/tg-bot
 import telebot
 from telebot import types
-from random import randint
 from telebot.types import *
+from random import randint
 from time import sleep
 from config import *
 from messages import *
