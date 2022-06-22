@@ -2,7 +2,7 @@
 import telebot
 from telebot import types
 from random import randint
-from telebot.types import InlineKeyboardMarkup
+from telebot.types import *
 from time import sleep
 from config import *
 from messages import *
@@ -19,13 +19,14 @@ echo_btn = telebot.types.InlineKeyboardButton(MESSAGES["echo_btn_txt"], callback
 calc_btn = telebot.types.InlineKeyboardButton(MESSAGES["calc_btn_txt"], callback_data="calc")
 photo_btn = telebot.types.InlineKeyboardButton(MESSAGES["photo_btn_txt"], callback_data="photo")
 ygadai_chislo_btn = telebot.types.InlineKeyboardButton(MESSAGES["ygadai_chislo_btn_txt"], callback_data="guess")
-hack_btn = telebot.types.InlineKeyboardButton("Взломать пентагон", callback_data="hack")
-
+hack_btn = telebot.types.InlineKeyboardButton(MESSAGES["hack_btn_txt"], callback_data="hack")
+buy_btn = telebot.types.InlineKeyboardButton(MESSAGES["buy_btn_txt"], callback_data="buy")
 markup.add(echo_btn)
 markup.add(calc_btn)
 markup.add(photo_btn)
 markup.add(ygadai_chislo_btn)
 markup.add(hack_btn)
+markup.add(buy_btn)
 
 more_photo_markup = telebot.types.InlineKeyboardMarkup()
 more_photo_btn = telebot.types.InlineKeyboardButton(MESSAGES["more_btn_txt"], callback_data="photo")
@@ -79,6 +80,9 @@ def filter_guess(message):
 
 def filter_hack(call):
     return call.data == "confirm_hack"
+
+def filter_buy(call):
+    return call.data == "buy"
 
 
 @bot.message_handler(commands=["start"])
@@ -180,13 +184,13 @@ def hack(call):
     if randint(0, 2) == 0:
         sleep(1)
         try:
-            bot.edit_message_text("Упс... Похоже, ваш телефон был взломан.", 
+            bot.edit_message_text(MESSAGES["hack_fail_txt"], 
                 call.message.caht.id, call.message.message_id)
         except:
             pass
     else:
         try:
-            bot.edit_message_text("Пентагон успешно взломан!", 
+            bot.edit_message_text(MESSAGES["hack_succ_txt"], 
                 call.message.chat.id, call.message.message_id)
         except:
             pass
@@ -197,6 +201,45 @@ def hack(call):
             except:
                 pass
         sleep(0.1)
+
+
+
+@bot.callback_query_handler(func=filter_buy)
+def buy(call):
+    bot.answer_callback_query(call.id)
+    price = [LabeledPrice(label="Ананас", amount=149 * 100)]
+    bot.send_invoice(
+        call.from_user.id,
+        title='Ананас',
+        description='Жёлтый, красивый, огромный АНАНАС',
+        provider_token=PROVIDER_TOKEN,
+        currency='RUB',
+        photo_url="https://fleuramour.ru/wp-content/uploads/4/0/b/40be99547098346f53838d39cec07de3.jpeg",
+        need_phone_number=False,
+        need_email=False,
+        is_flexible=False,
+        prices=price,
+        start_parameter='start_parameter',
+        invoice_payload='coupon',
+        max_tip_amount=500  * 100,
+        suggested_tip_amounts=(50 * 100, 150 * 100, 250 * 100, 500 * 100)
+    )
+
+
+@bot.pre_checkout_query_handler(func=lambda query: True)
+def process_pre_checkout_query(pre_checkout_query: types.PreCheckoutQuery):
+    print(pre_checkout_query.id)
+    print(pre_checkout_query.total_amount)
+    print(pre_checkout_query.from_user)
+    bot.answer_pre_checkout_query(pre_checkout_query.id, ok=True)
+
+
+@bot.message_handler(content_types=['successful_payment'])
+def process_successful_payment(message):
+    bot.send_message(message.chat.id, MESSAGES["successful_payment_txt"])
+    bot.send_photo(message.chat.id, photo="https://pro-dachnikov.com/uploads/posts/2021-11/1637951397_31-pro-dachnikov-com-p-ananas-foto-34.jpg")
+    
+
 
 
 bot.polling(non_stop=True)  # Рабочий цикл бота
