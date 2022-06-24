@@ -4,6 +4,9 @@ from telebot import types
 from telebot.types import *
 from random import randint
 from time import sleep
+import urllib
+import re
+import requests as req
 from config import *
 from messages import *
 
@@ -21,12 +24,14 @@ photo_btn = telebot.types.InlineKeyboardButton(MESSAGES["photo_btn_txt"], callba
 ygadai_chislo_btn = telebot.types.InlineKeyboardButton(MESSAGES["ygadai_chislo_btn_txt"], callback_data="guess")
 hack_btn = telebot.types.InlineKeyboardButton(MESSAGES["hack_btn_txt"], callback_data="hack")
 buy_btn = telebot.types.InlineKeyboardButton(MESSAGES["buy_btn_txt"], callback_data="buy")
+search_yt_btn = telebot.types.InlineKeyboardButton("Поиск видео", callback_data="yt_search")
 markup.add(echo_btn)
 markup.add(calc_btn)
 markup.add(photo_btn)
 markup.add(ygadai_chislo_btn)
 markup.add(hack_btn)
 markup.add(buy_btn)
+markup.add(search_yt_btn)
 
 more_photo_markup = telebot.types.InlineKeyboardMarkup()
 more_photo_btn = telebot.types.InlineKeyboardButton(MESSAGES["more_btn_txt"], callback_data="photo")
@@ -46,6 +51,11 @@ confirm_btn = telebot.types.InlineKeyboardButton("Подтвердить", callb
 confirm_markup.add(confirm_btn)
 confirm_markup.add(cancel_btn)
 
+regexp = r"watch\?v=(\S{11})"
+pattern = re.compile(regexp)
+url = "https://www.youtube.com/results?"
+
+
 
 def filter_state(message):
     if message.chat.id in data:
@@ -55,7 +65,7 @@ def filter_state(message):
 
 
 def filter_main(call):
-    return call.data in ["echo", "calc", "guess", "cancel", "photo", "menu", "hack"] 
+    return call.data in ["echo", "calc", "guess", "cancel", "photo", "menu", "hack", "yt_search"] 
 
 
 def filter_echo(message):
@@ -84,6 +94,9 @@ def filter_hack(call):
 
 def filter_buy(call):
     return call.data == "buy"
+
+def filter_search_yt(message):
+    return filter_state(message) and data[message.chat.id]["state"] == "yt_search"
 
 
 
@@ -121,6 +134,9 @@ def commands(call):
         if call.data == "hack":
             bot.send_message(call.message.chat.id, "Точно?", reply_markup=confirm_markup)
             data[call.message.chat.id]["state"] = "hack"
+        if call.data == "yt_search":
+            data[call.message.chat.id]["state"] = "yt_search"
+            bot.send_message(call.message.chat.id, "Введи поисковый запрос", reply_markup=cancel_markup)
         
 
 @bot.message_handler(func=filter_calc)
@@ -245,6 +261,20 @@ def process_successful_payment(message):
         )
     
 
+@bot.message_handler(func=filter_search_yt)
+def get_vdeo(message):
+    global url, regexp, pattern
+    query_string = urllib.parse.urlencode({"search_qeury" : message.text})
+    res = req.get(url + query_string)
+    if res.ok:
+        body = res.text
+        links = pattern.findall(body)[:5]
+        for link in links:
+            answer = "https://www.youtube.com/watch?v=" + link
+            bot.send_message(message.from_user.id, answer)
+        bot.send_message(message.chat.id, text=MESSAGES["cancel_txt"], reply_markup=cancel_markup)
+
 
 if __name__ == "__main__":
     bot.polling(non_stop=True)  # Рабочий цикл бота
+ 
