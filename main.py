@@ -238,8 +238,11 @@ def process_pre_checkout_query(pre_checkout_query: types.PreCheckoutQuery):
 
 @bot.message_handler(content_types=['successful_payment'])
 def process_successful_payment(message):
-    bot.send_message(message.chat.id, MESSAGES["successful_payment_txt"])
-    bot.send_photo(message.chat.id, photo="https://pro-dachnikov.com/uploads/posts/2021-11/1637951397_31-pro-dachnikov-com-p-ananas-foto-34.jpg")
+    bot.send_photo(
+        message.chat.id, 
+        photo="https://pro-dachnikov.com/uploads/posts/2021-11/1637951397_31-pro-dachnikov-com-p-ananas-foto-34.jpg", 
+        caption=MESSAGES["successful_payment_txt"]
+        )
     
 
 
