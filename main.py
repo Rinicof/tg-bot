@@ -1,4 +1,7 @@
 # https://github.com/Rinicof/tg-bot
+from audioop import maxpp
+from calendar import c
+from subprocess import call
 import telebot
 from telebot import types
 from telebot.types import *
@@ -54,11 +57,11 @@ hack_btn = telebot.types.InlineKeyboardButton (
     ], 
     callback_data="hack"
 )
-buy_btn = telebot.types.InlineKeyboardButton (
+shop_btn = telebot.types.InlineKeyboardButton (
     MESSAGES [
-        "buy_btn_txt"
+        "shop_btn_txt"
     ], 
-    callback_data="buy"
+    callback_data="shop"
 )
 search_yt_btn = telebot.types.InlineKeyboardButton (
     "Поиск видео", 
@@ -69,7 +72,7 @@ markup.add (calc_btn)
 markup.add (photo_btn)
 markup.add (ygadai_chislo_btn)
 markup.add (hack_btn)
-markup.add (buy_btn)
+markup.add (shop_btn)
 markup.add (search_yt_btn)
 
 more_photo_markup = telebot.types.InlineKeyboardMarkup ()
@@ -113,6 +116,18 @@ confirm_btn = telebot.types.InlineKeyboardButton (
 confirm_markup.add (confirm_btn)
 confirm_markup.add (cancel_btn)
 
+shop_markup = telebot.types.InlineKeyboardMarkup ()
+buy_pineapple_btn = telebot.types.InlineKeyboardButton (
+    "Ананас - ₽249",
+    callback_data="buy_pineapple"
+)
+buy_dragon_fruit_btn = telebot.types.InlineKeyboardButton (
+    "Драгон фрукт - ₽549",
+    callback_data="buy_dragon_fruit"
+)
+shop_markup.add (buy_pineapple_btn)
+shop_markup.add (buy_dragon_fruit_btn)
+
 regexp = r"watch\?v=(\S{11})"
 pattern = re.compile (regexp)
 url = "https://www.youtube.com/results?"
@@ -135,7 +150,8 @@ def filter_main (call):
         "photo", 
         "menu", 
         "hack", 
-        "yt_search"
+        "yt_search",
+        "shop"
     ] 
 
 
@@ -163,8 +179,17 @@ def filter_hack (call):
     return call.data == "confirm_hack"
 
 
-def filter_buy (call):
-    return call.data == "buy"
+def filter_shop (message):
+    return filter_state (message) and data [message.chat.id] ["state"] == "shop"
+
+
+def filter_buy_pineapple (call):
+    return call.data == "buy_pineapple"
+
+
+def filter_buy_dragon_fruit (call):
+    return call.data == "buy_dragon_fruit"
+
 
 def filter_search_yt (message):
     return filter_state (message) and data [message.chat.id] ["state"] == "yt_search"
@@ -195,22 +220,25 @@ def commands (call):
         data [call.message.chat.id] = {"state": "menu"}
     else:
         if call.data == "echo":
+            data [call.message.chat.id] ["state"] = "echo"
             bot.send_message (
                 call.message.chat.id, 
                 MESSAGES [
                     "echo_message_txt"
                 ]
             )
-            data [call.message.chat.id] ["state"] = "echo"
+            
         if call.data == "calc":
+            data [call.message.chat.id] ["state"] = "calc"
             bot.send_message (
                 call.message.chat.id, 
                 MESSAGES [
                     "calc_message_txt"
                 ]
             )
-            data [call.message.chat.id] ["state"] = "calc"
+            
         if call.data == "cancel":
+            data [call.message.chat.id]["state"] = "menu"
             bot.send_message(
                 call.message.chat.id, 
                 MESSAGES [
@@ -218,8 +246,9 @@ def commands (call):
                 ], 
                 reply_markup=markup
             )
-            data [call.message.chat.id]["state"] = "menu"
+            
         if call.data == "photo":
+            data [call.message.chat.id] ["state"] = "photo"
             bot.send_photo (
                 call.message.chat.id, 
                 photo=photos [
@@ -230,28 +259,38 @@ def commands (call):
                 ], 
                 reply_markup=more_photo_markup
             )
-            data [call.message.chat.id] ["state"] = "photo"
+            
         if call.data == "guess":
             bot.send_message (
-            call.message.chat.id, 
-            MESSAGES [
-                "guess_message_txt"
-            ], 
-            reply_markup=selecter_mode_markup
+                call.message.chat.id, 
+                MESSAGES [
+                    "guess_message_txt"
+                ], 
+                reply_markup=selecter_mode_markup
             )
+
         if call.data == "hack":
+            data [call.message.chat.id] ["state"] = "hack"
             bot.send_message (
                 call.message.chat.id, 
                 "Точно?", 
                 reply_markup=confirm_markup
             )
-            data [call.message.chat.id] ["state"] = "hack"
+            
         if call.data == "yt_search":
             data [call.message.chat.id] ["state"] = "yt_search"
             bot.send_message (
                 call.message.chat.id, 
                 "Введи поисковый запрос", 
                 reply_markup=cancel_markup
+            )
+
+        if call.data == "shop":
+            data [call.message.chat.id] ["state"] = "shop"
+            bot.send_message (
+                call.message.chat.id,
+                "Выбери то, что хочешь купить",
+                reply_markup=shop_markup
             )
         
 
@@ -436,28 +475,31 @@ def hack (call):
 
 
 
-@bot.callback_query_handler (func=filter_buy)
-def buy (call):
+@bot.callback_query_handler (func=filter_buy_pineapple)
+def buy_pineapple (call):
     bot.answer_callback_query (call.id)
     price = [
         LabeledPrice (
             label="Ананас", 
-            amount=149 * 100
+            amount=249 * 100
         )
     ]
     bot.send_invoice (
         call.from_user.id,
-        title='Ананас',
-        description='Жёлтый, красивый, огромный АНАНАС',
+        title="Ананас",
+        description=MESSAGES [
+            "pineapple_description"
+        ],
         provider_token=PROVIDER_TOKEN,
         currency='RUB',
         photo_url="https://fleuramour.ru/wp-content/uploads/4/0/b/40be99547098346f53838d39cec07de3.jpeg",
-        need_phone_number=False,
-        need_email=False,
+        need_phone_number=True,
+        need_email=True,
+        need_shipping_address=True,
         is_flexible=False,
         prices=price,
-        start_parameter='start_parameter',
-        invoice_payload='coupon',
+        start_parameter="start_parameter",
+        invoice_payload="coupon",
         max_tip_amount=500 * 100,
         suggested_tip_amounts=(
             50 * 100, 
@@ -466,6 +508,42 @@ def buy (call):
             500 * 100
         )
     )
+
+
+@bot.callback_query_handler (func=filter_buy_dragon_fruit)
+def buy_dragon_fruit (call):
+    bot.answer_callback_query (call.id)
+    price = [
+        LabeledPrice (
+            label="Драгон фрукт",
+            amount=549 * 100
+        )
+    ]
+    bot.send_invoice (
+        call.from_user.id,
+        title="Драгон фрукт",
+        description=MESSAGES [
+            "dragon_fruit_description"
+        ],
+        provider_token=PROVIDER_TOKEN,
+        currency='RUB',
+        photo_url="https://orchidea-shop.ru/base/data/6664mid.jpg",
+        need_phone_number=True,
+        need_email=True,
+        need_shipping_address=True,
+        is_flexible=False,
+        prices=price,
+        start_parameter="start_parameter",
+        invoice_payload="coupon",
+        max_tip_amount=500 * 100,
+        suggested_tip_amounts=(
+            50 * 100,
+            150 * 100,
+            250 * 100,
+            500 * 100
+        )
+    )
+
 
 
 @bot.pre_checkout_query_handler (func=lambda query: True)
@@ -485,9 +563,10 @@ def process_pre_checkout_query (pre_checkout_query: types.PreCheckoutQuery):
     ]
 )
 def process_successful_payment (message):
+
     bot.send_photo (
         message.chat.id, 
-        photo="https://pro-dachnikov.com/uploads/posts/2021-11/1637951397_31-pro-dachnikov-com-p-ananas-foto-34.jpg", 
+        photo="https://transonlain.ru/wp-content/uploads/2021/07/платеж-прошел-1536x1086.png", 
         caption=MESSAGES[
             "successful_payment_txt"
         ]
