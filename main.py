@@ -10,6 +10,8 @@ from time import sleep
 import urllib
 import re
 import requests as req
+import os
+import json
 from config import *
 from messages import *
 
@@ -58,14 +60,16 @@ hack_btn = telebot.types.InlineKeyboardButton (
     callback_data="hack"
 )
 shop_btn = telebot.types.InlineKeyboardButton (
-    MESSAGES [
-        "shop_btn_txt"
-    ], 
+    "Магазин",
     callback_data="shop"
 )
 search_yt_btn = telebot.types.InlineKeyboardButton (
     "Поиск видео", 
     callback_data="yt_search"
+)
+send_sticker_btn = telebot.types.InlineKeyboardButton (
+    "Стикер",
+    callback_data="send_sticker"
 )
 markup.add (echo_btn)
 markup.add (calc_btn)
@@ -74,6 +78,7 @@ markup.add (ygadai_chislo_btn)
 markup.add (hack_btn)
 markup.add (shop_btn)
 markup.add (search_yt_btn)
+markup.add (send_sticker_btn)
 
 more_photo_markup = telebot.types.InlineKeyboardMarkup ()
 more_photo_btn = telebot.types.InlineKeyboardButton (
@@ -132,7 +137,9 @@ regexp = r"watch\?v=(\S{11})"
 pattern = re.compile (regexp)
 url = "https://www.youtube.com/results?"
 
-
+file_markup = telebot.types.ReplyKeyboardMarkup (one_time_keyboard=True)
+sticker_button = telebot.types.KeyboardButton ("Стикер")
+file_markup.add (sticker_button)
 
 def filter_state (message):
     if message.chat.id in data:
@@ -151,7 +158,8 @@ def filter_main (call):
         "menu", 
         "hack", 
         "yt_search",
-        "shop"
+        "shop",
+        "send_sticker"
     ] 
 
 
@@ -210,6 +218,53 @@ def start_message (message):
             "first_appeal_txt"
         ],
         reply_markup=markup
+    )
+    if os.path.exists ("media.json"):
+        with open ("media.json", "r") as file:
+            id_s = json.load (file)
+    else:
+        id_s = {
+            "sticker":[],
+            "video":[],
+            "audio":[]
+        }
+        with open (patch, "w") as file:
+            json.dump (id_s, file)
+
+
+        
+@bot.message_handler (content_types=["sticker"])
+def send_sticker_id (message):
+    global id_s
+    id = message.sticker.file_id
+    id_s ["sticker"].append (id)
+    with open ("media.json", "w") as file:
+        json.dump (id_s, file)
+    print (id)
+    bot.send_message (message.chat.id, id)
+
+
+@bot.message_handler (func=filter_file)
+def random_file (message):
+    global id_s
+    try:
+        with open ("media.json", "r") as file:
+            id_s = json.load (file)
+        if message == "Стикер":
+            result = id_s ["sticker"] [randint (0, len (id_s ["sticker"]) - 1)]
+            bot.send_message (
+                message.chat.id,
+                result
+            )
+    except:
+        bot.send_message (
+            message.chat.id,
+            text="Мне ещё ничего не прислали"
+        )
+    bot.send_message (
+        message.chat.id,
+        text="Если хочешь вернутся в меню, нажми кнопку",
+        reply_markup=cancel_markup
     )
 
 
@@ -292,7 +347,16 @@ def commands (call):
                 "Выбери то, что хочешь купить",
                 reply_markup=shop_markup
             )
-        
+
+        if call.data == "send_sticker":
+            data [call.message.chat.id] ["state"] = "send_sticker"
+            bot.send_message (
+                call.message.chat.id,
+                "Что тебе нада?",
+                reply_markup=file_markup
+            )
+
+
 
 @bot.message_handler (func=filter_calc)
 def calculator (message):
@@ -563,7 +627,6 @@ def process_pre_checkout_query (pre_checkout_query: types.PreCheckoutQuery):
     ]
 )
 def process_successful_payment (message):
-
     bot.send_photo (
         message.chat.id, 
         photo="https://transonlain.ru/wp-content/uploads/2021/07/платеж-прошел-1536x1086.png", 
@@ -576,11 +639,11 @@ def process_successful_payment (message):
 @bot.message_handler (func=filter_search_yt)
 def get_vdeo (message):
     global url, regexp, pattern
-    query_string = urllib.parse.urlencode ({"search_qeury" : message.text})
+    query_string = urllib.parse.urlencode ({"search_query" : message.text})
     res = req.get (url + query_string)
     if res.ok:
         body = res.text
-        links = pattern.findall (body) [:5]
+        links = pattern.findall (body) [:2]
         for link in links:
             answer = "https://www.youtube.com/watch?v=" + link
             bot.send_message (
